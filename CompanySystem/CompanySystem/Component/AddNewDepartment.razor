@@ -1,0 +1,63 @@
+﻿
+@if (isFormShow)
+{
+    <EditForm Model="willAddedDepartment" OnValidSubmit="OnValidSubmit">
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Add Name of Department</label>
+            <InputText @bind-Value = "willAddedDepartment.Name" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
+
+        </div>
+        
+        <div class="mb-3">
+            <label for="companyid" class="form-label">Please Select Company Name </label>
+            <InputSelect @bind-Value="CompanyID" class="form-select" id="companyid">
+             
+                @foreach (var company in companies)
+                {
+                    <option value="@company.ID"  >@company.Name</option>
+                }
+
+            </InputSelect>
+        </div>
+
+        <button  class="btn btn-primary">Added</button>
+    </EditForm>
+}
+else
+{
+    <DoneSuccessfully DepartmentName="@departmentName"/>
+}
+@code {
+    int CompanyID ;
+    Department willAddedDepartment = new ();
+    List<Company> companies = new ();
+    WorkingDB db = new WorkingDB();
+    bool isFormShow = true;
+    string departmentName = string.Empty;
+
+    protected override Task OnInitializedAsync()
+    {
+         companies = db.Companies.ToList(); 
+        MessagingCenter.Subscribe<DoneSuccessfully>(this, "ShowForm", async (sender) =>
+        {
+            isFormShow = true;
+            await InvokeAsync(() => { StateHasChanged(); });
+        });
+        return base.OnInitializedAsync();
+    }
+    void OnValidSubmit()
+    {
+        db.Departments.Add(willAddedDepartment);
+        db.SaveChanges();
+      
+        if (willAddedDepartment.ID != 0)
+        {
+            isFormShow = false;
+            departmentName = willAddedDepartment.Name;
+
+            MessagingCenter.Send(this, "DepartmentAdded", willAddedDepartment);
+
+            willAddedDepartment = new();
+        }
+    }
+}

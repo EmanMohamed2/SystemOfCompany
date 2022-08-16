@@ -1,0 +1,48 @@
+﻿
+@if (isFormShow)
+{
+    <EditForm Model="willAddedCompany" OnValidSubmit="OnValidSubmit">
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Add Anthor Company</label>
+            <InputText @bind-Value = "willAddedCompany.Name" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
+
+        </div>
+
+        <button  class="btn btn-primary">Added</button>
+    </EditForm>
+}
+else
+{
+    <DoneSuccessfully CompanyName="@companyName"/>
+}
+@code {
+    Company willAddedCompany = new ();
+    WorkingDB db = new WorkingDB();
+    bool isFormShow = true;
+    string companyName = string.Empty;
+
+    protected override Task OnInitializedAsync()
+    {
+        MessagingCenter.Subscribe<DoneSuccessfully>(this, "ShowForm", async (sender) =>
+        {
+            isFormShow = true;
+            await InvokeAsync(() => { StateHasChanged(); });
+        });
+        return base.OnInitializedAsync();
+    }
+
+    void OnValidSubmit()
+    {
+        db.Companies.Add(willAddedCompany);
+        db.SaveChanges();
+        if (willAddedCompany.ID != 0)
+        {
+            isFormShow = false;
+            companyName = willAddedCompany.Name;
+
+            MessagingCenter.Send(this, "CompanyAdded", willAddedCompany);
+
+            willAddedCompany = new();
+        }
+    }
+}

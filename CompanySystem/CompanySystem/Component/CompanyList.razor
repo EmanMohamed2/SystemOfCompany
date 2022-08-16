@@ -1,0 +1,76 @@
+﻿@inject NavigationManager NavigationManager
+
+<h1>Companies List:</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Delet Action</th>
+            <th scope="col">Handle</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var company in companies)
+        {
+          <tr>
+            <td>@company.ID</td>
+                <td>@company.Name</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="@( ()=> { OnDeleteClick(company) ;  }  )">Delete</button>
+                </td>
+                <td>
+                    <button class="btn btn-dark" @onclick="@( ()=> {OnDetailsClick (company.ID) ;  } )">Details</button>
+                </td>
+
+                <td>
+                    <button class="btn btn-dark" @onclick="@( ()=> {OnUpdateClick (company) ;  } )">Update</button>
+                </td>
+          </tr>
+            
+        }
+      
+    </tbody>
+</table>
+
+@code 
+{
+    List<Company> companies = new();
+    WorkingDB db = new();
+    
+
+    protected override Task OnInitializedAsync()
+    {
+        companies = db.Companies.ToList();
+        MessagingCenter.Subscribe<AddNewCompany, Company>(this, "CompanyAdded", (sender, companyAdded) =>
+        {
+            companies.Add(companyAdded);
+            InvokeAsync(() => { StateHasChanged(); });
+        });
+        return base.OnInitializedAsync();
+    }
+    void OnDeleteClick(Company company)
+    {
+        db.Companies.Remove(company) ;
+        db.SaveChanges();
+
+        companies = db.Companies.ToList();
+
+    }
+
+    void OnDetailsClick (int companyID)
+    {
+        NavigationManager.NavigateTo($"/EmployeeList/{companyID}") ; 
+    }
+
+    void OnUpdateClick (Company companyID)
+    {
+        var result = db.Companies.Update(companyID);
+         db.SaveChanges();
+
+         companies = db.Companies.ToList();
+        NavigationManager.NavigateTo($"/EmployeeList/{companyID}") ; 
+    }
+}

@@ -1,0 +1,93 @@
+﻿@page "/EmployeeList/{CompanyID:int?}"
+@inject NavigationManager MyNavigationManger
+<h1>Employee List:</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">PhoneNumber</th>
+            <th scope="col">Date</th>
+            <th scope="col">Address</th>
+            <th scope="col">CompanyID</th>
+            <th scope="col">CompanyName</th>
+            <th scope="col">Handle</th>
+            <th scope="col">UpdateAction</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach (var employee in employees)
+        {
+          <tr>
+            <td>@employee.ID</td>
+                <td>@employee.Name</td>
+                <td>@employee.PhoneNumber</td>
+                <td>@employee.Date</td>
+                <td>@employee.Address</td>
+                <td>@employee.CompanyID</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="@( ()=> { OnDeleteClick(employee) ;  }  )">Delete</button>
+                </td>
+                @*<td>
+                    <button class="btn btn-dark" @onclick="@( ()=> {OnDetailsClick (company.ID) ;  } )">Details</button>
+                </td>*@
+                <td>
+                    <button class="btn btn-dark" @onclick="@( ()=> {OnUpdateClick (employee) ;  } )">Update</button>
+                </td>
+          </tr>
+            
+        }
+    
+    </tbody>
+</table>
+
+@code 
+{
+    List<Employee> employees = new();
+    WorkingDB db = new();
+    Employee obj = new Employee();
+
+    public EmployeeList()
+    {
+    }
+
+    [Parameter]
+    public string? Companyname { get; set; }
+
+    [Parameter]
+    public int? DepartmentId { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+         if(Companyname == null)
+        employees = db.Employees.ToList();
+       
+        return base.OnInitializedAsync();
+
+        //if(DepartmentId == null)
+        //employees = db.Employees.ToList();
+        //else
+        //employees = db.Employees.Where(i=>i.DepartmentID == DepartmentId).ToList();
+       
+        //return base.OnInitializedAsync();
+    }
+
+    void OnDeleteClick(Employee employee)
+    {
+        db.Employees.Remove(employee) ;
+        db.SaveChanges();
+
+        employees = db.Employees.ToList();
+
+    }
+    
+    void OnUpdateClick (Employee employee)
+    {
+        var result = db.Employees.Update(employee);
+         db.SaveChanges();
+
+        // employees = db.Employees.ToList();
+        //NavigationManager.NavigateTo($"/EmployeeList/{companyID}") ; 
+    }
+}

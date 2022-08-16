@@ -1,0 +1,103 @@
+﻿@inject NavigationManager MyNavigationManger
+
+<EditForm Model="employee" OnValidSubmit="OnValidSubmit">
+     <DataAnnotationsValidator/>
+
+     @*Employee Name*@
+  <div class="mb-3">
+    <label for="name" class="form-label">Employee Name</label>
+    <InputText @bind-Value="employee.Name" class="form-control" id="name"/>
+     <ValidationMessage For="@( ()=>employee.Name )" />
+  </div>
+
+    @*Employee Address*@
+  <div class="mb-3">
+    <label for="address" class="form-label">Employee Address</label>
+    <InputText @bind-Value="employee.Address" class="form-control" id="address"/>
+    
+  </div>
+    @*Phone Number*@
+   <div class="mb-3">
+    <label for="phonenumber" class="form-label">Phone Number</label>
+    <InputText @bind-Value="employee.PhoneNumber" class="form-control" id="phonenumber"/>
+    
+  </div>
+
+  
+    @*Date*@
+    <div class="mb-3">
+        <label for="date" class="form-label">Employee Date</label>
+        <InputDate @bind-Value="employee.Date" class="form-control" id="date" />
+    </div>
+
+    <div class="mb-3">
+        <label for="companyid" class="form-label">Please Select Company Name </label>
+        <InputSelect @bind-Value="employee.CompanyID" class="form-select" id="companyid">
+             
+            @foreach (var company in companies)
+            {
+                <option value="@company.ID"  >@company.Name</option>
+            }
+
+        </InputSelect>
+    </div>
+     <div class="mb-3">
+        <label for="DepartmentID" class="form-label">Please Select Department Name </label>
+        <InputSelect @bind-Value="employee.DepartmentID" class="form-select" id="DepartmentID">
+             
+            @foreach (var Department in departments)
+            {
+                <option value="@Department.ID"  >@Department.Name</option>
+            }
+
+        </InputSelect>
+    </div>
+    @*Department*@
+    @*<div class="mb-3">
+    <label for="Department" class="form-label">Department</label>
+    <InputText @bind-Value="employee.Department" class="form-control" id="Department"/>
+    
+  </div>*@
+
+    @*Company Name*@
+    @*<div class="mb-3">
+    <label for="CompanyName" class="form-label">Company Name</label>
+    <InputText @bind-Value="employee.CompanyName" class="form-control" id="CompanyName"/>
+    
+  </div>*@
+  <button type="submit" class="btn btn-primary">Submit</button>
+
+
+
+</EditForm>
+
+@code 
+{
+	Employee employee = new Employee();
+   
+	WorkingDB db = new WorkingDB();
+
+    List<Company> companies = new ();
+    List<Department> departments = new ();
+
+
+    protected override Task OnInitializedAsync()
+    {
+        companies = db.Companies.ToList(); 
+         departments = db.Departments.ToList(); 
+        return base.OnInitializedAsync();
+    }
+    //protected override Task OnInitializedAsync()
+    //{
+     //   departments = db.Departments.ToList(); 
+     //   return base.OnInitializedAsync();
+    //}
+
+    void OnValidSubmit()
+    {
+        db.Employees.Add(employee) ;
+        db.SaveChanges();
+
+        MyNavigationManger.NavigateTo("/EmployeeList");
+    }
+}

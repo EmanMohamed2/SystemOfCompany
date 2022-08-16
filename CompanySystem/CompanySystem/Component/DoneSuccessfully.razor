@@ -1,0 +1,18 @@
+﻿
+<div class="alert alert-success" role="alert">
+  <h1>@CompanyName Done Successfully</h1>
+  If you need to add new compant please press OK
+  <button class="btn btn-secondary" @onclick="OnOK">OK</button>
+</div>
+
+@code 
+{
+	[Parameter]
+	public string CompanyName { get; set; } = string.Empty;
+	//public string DepartmentName { get; set; } = string.Empty;
+
+	void OnOK()
+	{
+		MessagingCenter.Send(this, "ShowForm");
+	}
+}
